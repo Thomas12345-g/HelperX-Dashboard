@@ -22,7 +22,6 @@
             overflow: hidden;
         }
 
-        /* Hintergrundanimation */
         .bg-animation {
             position: absolute;
             width: 100%;
@@ -41,17 +40,9 @@
         }
 
         @keyframes float {
-            0%, 100% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10%, 90% {
-                opacity: 0.5;
-            }
-            50% {
-                transform: translateY(-100px) translateX(50px);
-                opacity: 0.2;
-            }
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10%, 90% { opacity: 0.5; }
+            50% { transform: translateY(-100px) translateX(50px); opacity: 0.2; }
         }
 
         .login-container {
@@ -67,9 +58,7 @@
             transition: transform 0.3s ease;
         }
 
-        .login-container:hover {
-            transform: translateY(-5px);
-        }
+        .login-container:hover { transform: translateY(-5px); }
 
         .login-header {
             background: linear-gradient(135deg, #5865F2 0%, #4752c4 100%);
@@ -90,32 +79,13 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .logo svg {
-            width: 50px;
-            height: 50px;
-            fill: #5865F2;
-        }
+        .logo svg { width: 50px; height: 50px; fill: #5865F2; }
+        .login-header h1 { font-size: 28px; margin-bottom: 10px; }
+        .login-header p { font-size: 14px; opacity: 0.9; }
 
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
+        .login-body { padding: 40px 30px; background: white; }
 
-        .login-header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .login-body {
-            padding: 40px 30px;
-            background: white;
-        }
-
-        .login-methods {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .login-methods { display: flex; flex-direction: column; gap: 15px; }
 
         .discord-btn {
             display: flex;
@@ -135,11 +105,7 @@
             width: 100%;
         }
 
-        .discord-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: white;
-        }
+        .discord-btn svg { width: 24px; height: 24px; fill: white; }
 
         .discord-btn:hover {
             background: #4752c4;
@@ -147,47 +113,21 @@
             box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
         }
 
-        .guest-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: #6c757d;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .guest-btn:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
         .divider {
             display: flex;
             align-items: center;
             text-align: center;
             color: #999;
-            margin: 20px 0;
+            margin: 5px 0;
         }
 
-        .divider::before,
-        .divider::after {
+        .divider::before, .divider::after {
             content: '';
             flex: 1;
             border-bottom: 1px solid #e0e0e0;
         }
 
-        .divider span {
-            margin: 0 10px;
-            font-size: 12px;
-        }
+        .divider span { margin: 0 10px; font-size: 12px; }
 
         .info-text {
             text-align: center;
@@ -196,14 +136,8 @@
             color: #999;
         }
 
-        .info-text a {
-            color: #5865F2;
-            text-decoration: none;
-        }
-
-        .info-text a:hover {
-            text-decoration: underline;
-        }
+        .info-text a { color: #5865F2; text-decoration: none; }
+        .info-text a:hover { text-decoration: underline; }
 
         .error-message {
             background: #f8d7da;
@@ -216,11 +150,7 @@
             font-size: 14px;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-        }
+        .loading { display: none; text-align: center; margin-top: 15px; }
 
         .spinner {
             width: 30px;
@@ -247,24 +177,15 @@
         }
 
         @media (max-width: 480px) {
-            .login-header {
-                padding: 30px 20px;
-            }
-            
-            .login-body {
-                padding: 30px 20px;
-            }
-            
-            .discord-btn, .guest-btn {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
+            .login-header { padding: 30px 20px; }
+            .login-body { padding: 30px 20px; }
+            .discord-btn { padding: 12px 20px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
     <div class="bg-animation" id="bgAnimation"></div>
-    
+
     <div class="login-container">
         <div class="login-header">
             <div class="logo">
@@ -275,10 +196,10 @@
             <h1>Willkommen zurück!</h1>
             <p>Melde dich an, um deinen Discord Bot zu verwalten</p>
         </div>
-        
+
         <div class="login-body">
             <div class="error-message" id="errorMessage"></div>
-            
+
             <div class="login-methods">
                 <a href="/login" class="discord-btn" id="discordLoginBtn">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -286,42 +207,28 @@
                     </svg>
                     <span>Mit Discord anmelden</span>
                 </a>
-                
-                <div class="divider">
-                    <span>oder</span>
-                </div>
-                
-                <button class="guest-btn" id="guestBtn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="white"/>
-                    </svg>
-                    <span>Als Gast fortfahren (Demo)</span>
-                </button>
             </div>
-            
+
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p style="margin-top: 10px; font-size: 12px;">Weiterleitung...</p>
             </div>
-            
+
             <div class="info-text">
                 <p>Du hast noch keinen Discord Account? <a href="https://discord.com/register" target="_blank">Jetzt registrieren</a></p>
                 <p style="margin-top: 10px;">Mit der Anmeldung akzeptierst du unsere <a href="#">AGB</a> und <a href="#">Datenschutzbestimmungen</a>.</p>
             </div>
         </div>
-        
+
         <div class="footer">
-            <p>© 2024 Discord Bot Dashboard | Alle Rechte vorbehalten</p>
+            <p>© 2025 Discord Bot Dashboard | Alle Rechte vorbehalten</p>
         </div>
     </div>
 
     <script>
-        // Hintergrundanimation generieren
         function createBackgroundAnimation() {
             const bgAnimation = document.getElementById('bgAnimation');
-            const numBubbles = 20;
-            
-            for (let i = 0; i < numBubbles; i++) {
+            for (let i = 0; i < 20; i++) {
                 const bubble = document.createElement('div');
                 const size = Math.random() * 100 + 50;
                 bubble.style.width = `${size}px`;
@@ -334,110 +241,33 @@
             }
         }
 
-        // Fehlermeldung anzeigen
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
         }
 
-        // Loading anzeigen
-        function showLoading(show) {
-            const loading = document.getElementById('loading');
-            const loginMethods = document.querySelector('.login-methods');
-            const discordBtn = document.getElementById('discordLoginBtn');
-            const guestBtn = document.getElementById('guestBtn');
-            
-            if (show) {
-                loading.style.display = 'block';
-                loginMethods.style.opacity = '0.5';
-                discordBtn.style.pointerEvents = 'none';
-                guestBtn.style.pointerEvents = 'none';
-            } else {
-                loading.style.display = 'none';
-                loginMethods.style.opacity = '1';
-                discordBtn.style.pointerEvents = 'auto';
-                guestBtn.style.pointerEvents = 'auto';
-            }
-        }
-
-        // Discord Login (mit CSRF-Schutz)
-        document.getElementById('discordLoginBtn').addEventListener('click', function(e) {
-            // Kein Standardverhalten, da der Link bereits korrekt ist
-            showLoading(true);
-            
-            // Optional: Hier könnte man noch einen CSRF-Token generieren
-            const state = Math.random().toString(36).substring(7);
-            sessionStorage.setItem('oauth_state', state);
-            
-            // Normalerweise wird hier einfach der Link gefolgt
-            // showLoading bleibt für kurze Zeit sichtbar
-            setTimeout(() => {
-                showLoading(false);
-            }, 3000);
+        document.getElementById('discordLoginBtn').addEventListener('click', function() {
+            document.getElementById('loading').style.display = 'block';
+            this.style.pointerEvents = 'none';
+            this.style.opacity = '0.7';
         });
 
-        // Gast-Demo Login (für Testzwecke)
-        document.getElementById('guestBtn').addEventListener('click', function() {
-            showLoading(true);
-            
-            // Demo-Login - In Produktion entfernen!
-            setTimeout(() => {
-                // Demo-Session setzen (nur für Tests!)
-                fetch('/api/demo_login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '/dashboard';
-                    } else {
-                        showLoading(false);
-                        showError('Demo-Login fehlgeschlagen. Bitte versuche es erneut.');
-                    }
-                })
-                .catch(error => {
-                    showLoading(false);
-                    showError('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
-                });
-            }, 1000);
-        });
-
-        // Check ob bereits eingeloggt
-        async function checkLoginStatus() {
-            try {
-                const response = await fetch('/api/bot/status');
-                if (response.ok) {
-                    // Optional: Prüfen ob Session existiert
-                    console.log('Überprüfe Login-Status...');
-                }
-            } catch (error) {
-                console.error('Fehler beim Überprüfen des Login-Status:', error);
-            }
-        }
-
-        // URL Parameter prüfen (z.B. für Fehlermeldungen)
+        // Fehlermeldungen aus URL-Parametern anzeigen
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
         if (error) {
-            if (error === 'access_denied') {
-                showError('Du hast die Anmeldung abgelehnt.');
-            } else if (error === 'oauth_failed') {
-                showError('OAuth-Login fehlgeschlagen. Bitte versuche es erneut.');
-            } else {
-                showError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
-            }
+            const messages = {
+                'access_denied': 'Du hast die Anmeldung abgelehnt.',
+                'oauth_failed': 'OAuth-Login fehlgeschlagen. Bitte versuche es erneut.',
+                'invalid_state': 'Sicherheitsfehler. Bitte versuche es erneut.',
+                'no_code': 'Kein Autorisierungscode erhalten. Bitte versuche es erneut.'
+            };
+            showError(messages[error] || 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
         }
 
-        // Animation starten
         createBackgroundAnimation();
-        checkLoginStatus();
     </script>
 </body>
 </html>
