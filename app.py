@@ -3,11 +3,14 @@ import requests
 import os
 import secrets
 from functools import wraps
-from bot import bot, start_bot, send_message_sync, is_bot_ready, send_dm_sync
+import threading
+import time
 import logging
+import asyncio
 
 # Logging konfigurieren
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
@@ -15,22 +18,40 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(32))
 # Discord OAuth2 Konfiguration
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
-DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "http://localhost:5000/callback")
-DISCORD_BOT_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "https://deine-app.onrender.com/callback")
 
-# Discord API Endpunkte
-DISCORD_API_BASE = "https://discord.com/api/v10"
-DISCORD_AUTHORIZE_URL = f"{DISCORD_API_BASE}/oauth2/authorize"
-DISCORD_TOKEN_URL = f"{DISCORD_API_BASE}/oauth2/token"
-DISCORD_USER_URL = f"{DISCORD_API_BASE}/users/@me"
-DISCORD_GUILDS_URL = f"{DISCORD_API_BASE}/users/@me/guilds"
+# Bot-Import
+from bot import bot, start_bot, send_message_sync, is_bot_ready, send_dm_sync
 
-# Bot beim Start initialisieren (wenn nicht schon geschehen)
-if not is_bot_ready():
-    start_bot()
-    logging.info("Bot-Start initiiert...")
+# ═══════════════════════════════════════════════════════════════════════════════
+#  BOT AUTOMATISCH STARTEN (Für Render)
+# ═══════════════════════════════════════════════════════════════════════════════
+def start_bot_in_background():
+    """Startet den Bot im Hintergrund (für Render)"""
+    try:
+        logger.info("🚀 Starte Discord-Bot im Hintergrund...")
+        # Starte den Bot (nicht-blockierend)
+        start_bot()
+        
+        # Warte kurz auf Bot-Start
+        time.sleep(3)
+        if is_bot_ready():
+            logger.info("✅ Bot ist bereit!")
+        else:
+            logger.warning("⚠️  Bot startet noch...")
+    except Exception as e:
+        logger.error(f"❌ Bot-Fehler: {e}")
 
-# Login erforderlich Decorator
+# Bot automatisch starten wenn die App läuft
+# Wichtig: use_reloader=False in app.run() verhindert doppelten Start
+if not os.environ.get('WERKZEUG_RUN_MAIN'):
+    # Startet nur einmal, nicht beim Auto-Reload
+    start_bot_in_background()
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  FLASK ROUTES (wie zuvor)
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -39,59 +60,44 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Admin-Check Decorator (optional)
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('is_admin', False):
-            return jsonify({"error": "Admin-Berechtigung erforderlich"}), 403
-        return f(*args, **kwargs)
-    return decorated_function
-
 @app.route('/')
 def index():
-    """Startseite mit Dashboard wenn eingeloggt"""
     if 'user_id' in session:
         return render_template('dashboard.html', 
                              username=session.get('username'),
                              avatar=session.get('avatar'),
+                             user_id=session.get('user_id'),
+                             is_admin=session.get('is_admin', False),
                              bot_ready=is_bot_ready())
-    return render_template('index.html')
+    return render_template('login.html')
 
 @app.route('/login')
 def login():
-    """Discord OAuth Login starten"""
-    # Generiere State für CSRF-Schutz
+    """Discord OAuth Login"""
     state = secrets.token_urlsafe(32)
     session['oauth_state'] = state
     
-    # Parameter für Discord OAuth
     params = {
         'client_id': DISCORD_CLIENT_ID,
         'redirect_uri': DISCORD_REDIRECT_URI,
         'response_type': 'code',
         'state': state,
-        'scope': 'identify guilds',
-        'prompt': 'none'
+        'scope': 'identify guilds'
     }
     
-    # Authorization URL erstellen
-    auth_url = f"{DISCORD_AUTHORIZE_URL}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+    auth_url = f"https://discord.com/api/oauth2/authorize?{'&'.join([f'{k}={v}' for k,v in params.items()])}"
     return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
-    """OAuth Callback von Discord"""
-    # CSRF-Schutz prüfen
+    """OAuth Callback"""
     if request.args.get('state') != session.get('oauth_state'):
-        return "Invalid state parameter", 400
+        return "Invalid state", 400
     
-    # Authorization Code abrufen
     code = request.args.get('code')
     if not code:
-        return "No code provided", 400
+        return "No code", 400
     
-    # Token von Discord anfordern
     data = {
         'client_id': DISCORD_CLIENT_ID,
         'client_secret': DISCORD_CLIENT_SECRET,
@@ -100,33 +106,30 @@ def callback():
         'redirect_uri': DISCORD_REDIRECT_URI
     }
     
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    response = requests.post('https://discord.com/api/oauth2/token', 
+                            data=data, 
+                            headers={'Content-Type': 'application/x-www-form-urlencoded'})
     
-    response = requests.post(DISCORD_TOKEN_URL, data=data, headers=headers)
     if response.status_code != 200:
-        return f"Token exchange failed: {response.text}", 400
+        return "Token exchange failed", 400
     
     token_data = response.json()
     access_token = token_data.get('access_token')
     
-    # Benutzerinformationen abrufen
-    user_headers = {'Authorization': f'Bearer {access_token}'}
-    user_response = requests.get(DISCORD_USER_URL, headers=user_headers)
+    # Benutzerinfo abrufen
+    user_response = requests.get('https://discord.com/api/users/@me',
+                                headers={'Authorization': f'Bearer {access_token}'})
     
     if user_response.status_code != 200:
-        return "Failed to get user info", 400
+        return "Failed to get user", 400
     
     user_data = user_response.json()
     
-    # In Session speichern
     session['user_id'] = user_data['id']
     session['username'] = user_data['username']
-    session['discriminator'] = user_data.get('discriminator', '0')
     session['avatar'] = user_data.get('avatar')
     session['access_token'] = access_token
     
-    # Prüfen ob Benutzer Admin ist (hier nach eigenen Kriterien)
-    # Z.B. bestimmte Discord IDs oder Server-Rollen
     admin_ids = os.getenv("ADMIN_USER_IDS", "").split(",")
     session['is_admin'] = session['user_id'] in admin_ids
     
@@ -135,7 +138,6 @@ def callback():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """Dashboard Hauptseite"""
     return render_template('dashboard.html',
                          username=session.get('username'),
                          avatar=session.get('avatar'),
@@ -145,15 +147,13 @@ def dashboard():
 
 @app.route('/logout')
 def logout():
-    """Logout und Session löschen"""
     session.clear()
     return redirect(url_for('index'))
 
-# API Endpunkte für das Dashboard
+# API Endpunkte
 @app.route('/api/bot/status', methods=['GET'])
 @login_required
 def api_bot_status():
-    """Bot-Status API"""
     return jsonify({
         'bot_ready': is_bot_ready(),
         'bot_user': str(bot.user) if bot and bot.user else None,
@@ -163,7 +163,6 @@ def api_bot_status():
 @app.route('/api/guilds', methods=['GET'])
 @login_required
 def api_get_guilds():
-    """Liste der Server abrufen, auf denen der Bot ist"""
     if not is_bot_ready():
         return jsonify({'error': 'Bot not ready'}), 503
     
@@ -174,8 +173,8 @@ def api_get_guilds():
             'name': guild.name,
             'icon': str(guild.icon.url) if guild.icon else None,
             'member_count': guild.member_count,
-            'channels': [{'id': ch.id, 'name': ch.name, 'type': str(ch.type)} 
-                        for ch in guild.channels if hasattr(ch, 'send')]
+            'text_channels': [{'id': ch.id, 'name': ch.name} 
+                            for ch in guild.text_channels]
         })
     
     return jsonify(guilds)
@@ -183,7 +182,6 @@ def api_get_guilds():
 @app.route('/api/send_message', methods=['POST'])
 @login_required
 def api_send_message():
-    """Nachricht in einen Channel senden"""
     data = request.json
     channel_id = data.get('channel_id')
     message = data.get('message')
@@ -204,7 +202,6 @@ def api_send_message():
 @app.route('/api/send_dm', methods=['POST'])
 @login_required
 def api_send_dm():
-    """Direktnachricht an Benutzer senden"""
     data = request.json
     user_id = data.get('user_id')
     message = data.get('message')
@@ -222,29 +219,17 @@ def api_send_dm():
     else:
         return jsonify({'success': False, 'error': 'Failed to send DM'}), 500
 
-@app.route('/api/user_guilds', methods=['GET'])
-@login_required
-def api_user_guilds():
-    """Server abrufen, auf denen der eingeloggte Benutzer ist"""
-    access_token = session.get('access_token')
-    if not access_token:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    headers = {'Authorization': f'Bearer {access_token}'}
-    response = requests.get(DISCORD_GUILDS_URL, headers=headers)
-    
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to fetch guilds'}), 500
-    
-    user_guilds = response.json()
-    
-    # Server filtern, auf denen der Benutzer Admin ist
-    admin_guilds = [g for g in user_guilds if (g['permissions'] & 0x8) == 0x8]
-    
-    return jsonify({
-        'all_guilds': user_guilds,
-        'admin_guilds': admin_guilds
-    })
-
+# ═══════════════════════════════════════════════════════════════════════════════
+#  MAIN - Für Render
+# ═══════════════════════════════════════════════════════════════════════════════
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    logger.info(f"🌐 Starte Flask-Server auf Port {port}")
+    
+    # Für Render: use_reloader=False ist wichtig!
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=False,  # Render: Debug muss aus sein
+        use_reloader=False  # Verhindert doppelten Bot-Start
+    )
