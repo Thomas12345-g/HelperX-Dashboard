@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #5865F2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .logo svg {
+            width: 60px;
+            height: 60px;
+            fill: white;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .features li {
+            padding: 8px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li:before {
+            content: "✓";
+            color: #5865F2;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .login-btn {
+            display: inline-block;
+            background: #5865F2;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+            background: #4752c4;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.222 0c1.406 0 2.54 1.134 2.54 2.54v18.92c0 1.406-1.134 2.54-2.54 2.54H3.78c-1.406 0-2.54-1.134-2.54-2.54V2.54C1.24 1.134 2.374 0 3.78 0h16.442zM8.52 18.2c-1.02 0-1.86-.84-1.86-1.86 0-1.02.84-1.86 1.86-1.86 1.02 0 1.86.84 1.86 1.86 0 1.02-.84 1.86-1.86 1.86zm7.96 0c-1.02 0-1.86-.84-1.86-1.86 0-1.02.84-1.86 1.86-1.86 1.02 0 1.86.84 1.86 1.86 0 1.02-.84 1.86-1.86 1.86zM19.02 5.7c-1.44-1.08-3.12-1.74-4.86-2.04-.2.36-.38.74-.54 1.14-1.74-.26-3.48-.26-5.22 0-.16-.4-.34-.78-.54-1.14-1.74.3-3.42.96-4.86 2.04-1.26 1.98-2.04 4.26-2.16 6.6 1.62 1.2 3.48 2.04 5.46 2.52.42-.6.78-1.26 1.08-1.98-1.2-.48-2.34-1.14-3.36-1.98.3-.24.6-.48.9-.72 1.86 1.38 4.14 2.04 6.42 2.04s4.56-.66 6.42-2.04c.3.24.6.48.9.72-1.02.84-2.16 1.5-3.36 1.98.3.72.66 1.38 1.08 1.98 1.98-.48 3.84-1.32 5.46-2.52-.12-2.34-.9-4.62-2.16-6.6z"/>
+            </svg>
+        </div>
+        <h1>Discord Bot Dashboard</h1>
+        <p class="subtitle">Verwalte deinen Discord Bot von überall</p>
+        
+        <div class="features">
+            <h3>Features:</h3>
+            <ul>
+                <li>Nachrichten an Server senden</li>
+                <li>Direktnachrichten an Benutzer</li>
+                <li>Bot-Status überwachen</li>
+                <li>Server- und Channel-Verwaltung</li>
+                <li>Sichere Discord OAuth Anmeldung</li>
+            </ul>
+        </div>
+        
+        <a href="/login" class="login-btn">Mit Discord anmelden</a>
+        
+        <div class="footer">
+            <p>Powered by Discord Bot Dashboard v1.0</p>
+        </div>
+    </div>
+</body>
+</html>
